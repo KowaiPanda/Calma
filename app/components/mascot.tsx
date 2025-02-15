@@ -34,13 +34,16 @@ export default function Mascot({ hints }: { hints?: string[] }) {
       />
       {showBubble && hints?.[currentHintIndex] && (
         <div
-          className="absolute -top-16 left-1/2 transform -translate-x-1/2 
+          className="absolute -top-16 left-1/2 transform translate-x-2 
                     bg-white p-4 rounded-2xl shadow-lg
                     before:content-[''] before:absolute before:bottom-[-10px] 
                     before:left-1/2 before:-translate-x-1/2
                     before:border-l-[10px] before:border-l-transparent
                     before:border-r-[10px] before:border-r-transparent
-                    before:border-t-[10px] before:border-t-white"
+                    before:border-t-[10px] before:border-t-white
+                    max-h-[200px] overflow-y-auto
+                    translate-y-[-100%]
+                    min-w-[300px] max-w-[400px] w-max"
         >
           <p className="text-gray-800 text-sm whitespace-pre-wrap">
             {hints[currentHintIndex]}
