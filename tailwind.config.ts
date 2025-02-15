@@ -9,9 +9,16 @@ export default {
   theme: {
     extend: {
       colors: {
-        background: "var(--background)",
-        foreground: "var(--foreground)",
+        'deep-sapphire-blue': '#1A3A6B',
+        'emerald-green': '#2E8B57',
+        'golden-yellow': '#FFD700',
+        'warm-gray': '#8C8C8C',
+        'mystic-teal': '#40E0D0',
+        'midnight-purple': '#4B0082',
       },
+      backgroundImage: {
+        background: 'url("/images/skybox.jpg")',
+      }
     },
   },
   plugins: [],
