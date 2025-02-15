@@ -1,15 +1,13 @@
 'use client';
 
 import { useState, type FormEvent } from 'react';
-import { createClient } from '@/utils/supabase/client';
+import { supabase } from '@/utils/supabase/client';
 import { redirect } from 'next/navigation';
 
 export default function Page() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
-
-  const supabase = createClient();
 
   const handleLogin = async (event: FormEvent) => {
     event.preventDefault();
