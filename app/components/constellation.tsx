@@ -30,7 +30,7 @@ interface ConstellationNetworkProps {
 
 const imageUrl = '/images/star.png';
 const DEFAULT_NODES: Node[] = [
-  { id: 1, x: 100, y: 100, image: imageUrl, label: 'Node 1', href: '/node-1' },
+  { id: 1, x: 100, y: 100, image: imageUrl, label: 'Node 1', href: '/chapters/linear-search' },
   { id: 2, x: 250, y: 150, image: imageUrl, label: 'Node 2', href: '/node-2' },
   { id: 3, x: 180, y: 250, image: imageUrl, label: 'Node 3', href: '/node-3' },
   { id: 4, x: 400, y: 200, image: imageUrl, label: 'Node 4', href: '/node-4' },
