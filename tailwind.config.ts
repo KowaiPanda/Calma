@@ -1,10 +1,10 @@
-import type { Config } from "tailwindcss";
+import type { Config } from 'tailwindcss';
 
 export default {
   content: [
-    "./pages/**/*.{js,ts,jsx,tsx,mdx}",
-    "./components/**/*.{js,ts,jsx,tsx,mdx}",
-    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    './pages/**/*.{js,ts,jsx,tsx,mdx}',
+    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    './app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
     extend: {
@@ -15,10 +15,11 @@ export default {
         'warm-gray': '#8C8C8C',
         'mystic-teal': '#40E0D0',
         'midnight-purple': '#4B0082',
+        'crimson-red': '#DC143C',
       },
       backgroundImage: {
         background: 'url("/images/skybox.jpg")',
-      }
+      },
     },
   },
   plugins: [],

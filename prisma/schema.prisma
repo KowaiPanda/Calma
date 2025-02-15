@@ -9,8 +9,8 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
 
@@ -19,6 +19,7 @@ model User {
   username          String    @unique @db.VarChar(32)
   password          String    @db.VarChar(64)
   email             String    @unique @db.VarChar(320)
+  enabledChapters   Int[]
   completedLessons  Lesson[]
   completedChapters Chapter[]
 }

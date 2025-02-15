@@ -1,4 +1,4 @@
-'use client'
+'use client';
 
 import React, { useState } from 'react';
 import Link from 'next/link';
@@ -26,11 +26,19 @@ interface ConstellationNetworkProps {
   lineHighlightColor?: string;
   borderColor?: string;
   borderHighlightColor?: string;
+  enabledNodeIds?: number[]; // Add this new prop
 }
 
 const imageUrl = '/images/star.png';
 const DEFAULT_NODES: Node[] = [
-  { id: 1, x: 100, y: 100, image: imageUrl, label: 'Node 1', href: '/chapters/linear-search' },
+  {
+    id: 1,
+    x: 100,
+    y: 100,
+    image: imageUrl,
+    label: 'Node 1',
+    href: '/chapters/linear-search',
+  },
   { id: 2, x: 250, y: 150, image: imageUrl, label: 'Node 2', href: '/node-2' },
   { id: 3, x: 180, y: 250, image: imageUrl, label: 'Node 3', href: '/node-3' },
   { id: 4, x: 400, y: 200, image: imageUrl, label: 'Node 4', href: '/node-4' },
@@ -39,13 +47,62 @@ const DEFAULT_NODES: Node[] = [
   { id: 7, x: 600, y: 100, image: imageUrl, label: 'Node 7', href: '/node-7' },
   { id: 8, x: 700, y: 300, image: imageUrl, label: 'Node 8', href: '/node-8' },
   { id: 9, x: 800, y: 200, image: imageUrl, label: 'Node 9', href: '/node-9' },
-  { id: 10, x: 900, y: 100, image: imageUrl, label: 'Node 10', href: '/node-10' },
-  { id: 11, x: 1000, y: 300, image: imageUrl, label: 'Node 11', href: '/node-11' },
-  { id: 12, x: 1100, y: 200, image: imageUrl, label: 'Node 12', href: '/node-12' },
-  { id: 13, x: 1200, y: 100, image: imageUrl, label: 'Node 13', href: '/node-13' },
-  { id: 14, x: 1300, y: 300, image: imageUrl, label: 'Node 14', href: '/node-14' },
-  { id: 15, x: 1400, y: 200, image: imageUrl, label: 'Node 15', href: '/node-15' },
-  { id: 16, x: 1500, y: 100, image: imageUrl, label: 'Node 16', href: '/node-16' }
+  {
+    id: 10,
+    x: 900,
+    y: 100,
+    image: imageUrl,
+    label: 'Node 10',
+    href: '/node-10',
+  },
+  {
+    id: 11,
+    x: 1000,
+    y: 300,
+    image: imageUrl,
+    label: 'Node 11',
+    href: '/node-11',
+  },
+  {
+    id: 12,
+    x: 1100,
+    y: 200,
+    image: imageUrl,
+    label: 'Node 12',
+    href: '/node-12',
+  },
+  {
+    id: 13,
+    x: 1200,
+    y: 100,
+    image: imageUrl,
+    label: 'Node 13',
+    href: '/node-13',
+  },
+  {
+    id: 14,
+    x: 1300,
+    y: 300,
+    image: imageUrl,
+    label: 'Node 14',
+    href: '/node-14',
+  },
+  {
+    id: 15,
+    x: 1400,
+    y: 200,
+    image: imageUrl,
+    label: 'Node 15',
+    href: '/node-15',
+  },
+  {
+    id: 16,
+    x: 1500,
+    y: 100,
+    image: imageUrl,
+    label: 'Node 16',
+    href: '/node-16',
+  },
 ];
 
 const DEFAULT_CONNECTIONS: Connection[] = [
@@ -65,7 +122,7 @@ const DEFAULT_CONNECTIONS: Connection[] = [
   { source: 12, target: 13 },
   { source: 13, target: 14 },
   { source: 14, target: 15 },
-  { source: 15, target: 16 }
+  { source: 15, target: 16 },
 ];
 
 const ConstellationNetwork: React.FC<ConstellationNetworkProps> = ({
@@ -76,7 +133,8 @@ const ConstellationNetwork: React.FC<ConstellationNetworkProps> = ({
   lineColor = '#4B5563',
   lineHighlightColor = '#60A5FA',
   borderColor = 'border-gray-600',
-  borderHighlightColor = 'border-blue-500'
+  borderHighlightColor = 'border-blue-500',
+  enabledNodeIds = [], // Add default value
 }) => {
   const [hoveredNode, setHoveredNode] = useState<number | null>(null);
 
@@ -85,46 +143,51 @@ const ConstellationNetwork: React.FC<ConstellationNetworkProps> = ({
   };
 
   const isConnectionHighlighted = (source: number, target: number): boolean => {
-    return hoveredNode !== null && (hoveredNode === source || hoveredNode === target);
+    return (
+      hoveredNode !== null && (hoveredNode === source || hoveredNode === target)
+    );
   };
 
   const NodeImage = ({ node }: { node: Node }) => {
+    const isEnabled =
+      enabledNodeIds.length === 0 || enabledNodeIds.includes(node.id);
+
     const imageElement = (
       <div className="relative">
-        <div className={`absolute inset-0 rounded-full animate-pulse ${
-          hoveredNode === node.id ? 'bg-blue-500/30' : 'bg-gray-500/20'
-        }`} />
+        <div
+          className={`absolute inset-0 rounded-full animate-pulse ${
+            hoveredNode === node.id ? 'bg-blue-500/30' : 'bg-gray-500/20'
+          }`}
+        />
         <img
           src={node.image}
           alt={node.label || `Node ${node.id}`}
-          className={`w-16 h-16 rounded-full border-2 ${borderColor} hover:${borderHighlightColor} transition-colors duration-300 cursor-pointer`}
+          className={`w-16 h-16 rounded-full border-2 ${borderColor} hover:${borderHighlightColor} transition-colors duration-300 ${isEnabled ? 'cursor-pointer' : 'cursor-not-allowed opacity-50'}`}
           style={{
             width: `${nodeSize}px`,
-            height: `${nodeSize}px`
+            height: `${nodeSize}px`,
           }}
         />
       </div>
     );
 
-    if (node.href) {
-      return (
-        <Link href={node.href}>
-          {imageElement}
-        </Link>
-      );
+    if (node.href && isEnabled) {
+      return <Link href={node.href}>{imageElement}</Link>;
     }
 
     return imageElement;
   };
 
   return (
-    <div className={`relative h-96 ${backgroundColor} rounded-lg overflow-hidden w-full`}>
+    <div
+      className={`relative h-96 ${backgroundColor} rounded-lg overflow-hidden w-full`}
+    >
       {/* Draw connections */}
       <svg className="absolute inset-0 w-full h-full">
         {connections.map(({ source, target }, index) => {
           const fromNode = nodes.find(n => n.id === source);
           const toNode = nodes.find(n => n.id === target);
-         
+
           if (!fromNode || !toNode) return null;
 
           const isHighlighted = isConnectionHighlighted(source, target);
@@ -145,7 +208,7 @@ const ConstellationNetwork: React.FC<ConstellationNetworkProps> = ({
       </svg>
 
       {/* Draw nodes */}
-      {nodes.map((node) => (
+      {nodes.map(node => (
         <div
           key={node.id}
           className={`absolute transform -translate-x-1/2 -translate-y-1/2 transition-all duration-300 ${
@@ -153,7 +216,7 @@ const ConstellationNetwork: React.FC<ConstellationNetworkProps> = ({
           }`}
           style={{
             left: node.x,
-            top: node.y
+            top: node.y,
           }}
           onMouseEnter={() => handleNodeHover(node.id)}
           onMouseLeave={() => handleNodeHover(null)}
