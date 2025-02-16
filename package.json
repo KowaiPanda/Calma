@@ -22,11 +22,11 @@
     "monaco-editor": "^0.52.2",
     "motion": "^12.4.3",
     "next": "15.1.7",
-    "pyodide": "^0.27.2",
     "pythonia": "^1.2.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-icons": "^5.4.0",
+    "react-py": "^1.11.2",
     "tailwind-merge": "^3.0.1",
     "tailwindcss-animate": "^1.0.7",
     "zod": "^3.24.2"

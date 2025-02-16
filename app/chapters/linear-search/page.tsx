@@ -6,6 +6,7 @@ import { FaPlay, FaFire } from 'react-icons/fa';
 import { IoMdAlert } from 'react-icons/io';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
+import { usePython } from 'react-py';
 
 import { useAuth } from '@/app/components/auth-provider';
 import CodeEditor from '@/app/components/code-editor';
@@ -31,65 +32,81 @@ export default function Page() {
   const [code, setCode] = useState(
     'def linear_search(arr, target):\n    # Your code here\n    pass',
   );
-  const [passed, setPassed] = useState(null);
-  const [loading, setLoading] = useState(false);
+  const [passed, setPassed] = useState<boolean | null>(null);
   const [error, setError] = useState('');
 
-  const testCases = [
-    {
-      inputs: [[1, 3, 5, 7, 9], 5], // array and target
-      expected: 2, // index where 5 is found
-    },
-    {
-      inputs: [[1, 3, 5, 7, 9], 2], // array and target
-      expected: -1, // target not found
-    },
-    {
-      inputs: [[], 1], // empty array
-      expected: -1, // target not found
-    },
-    {
-      inputs: [[1], 1], // single element array
-      expected: 0, // target found at index 0
-    },
-    {
-      inputs: [[1, 1, 1, 1], 1], // multiple occurrences
-      expected: 0, // should return first occurrence
-    },
-  ];
+  const { runPython, stdout, stderr, isLoading: isPythonLoading } = usePython();
 
   const handleEditorChange = (newCode: string | undefined) => {
     setCode(newCode ?? '');
   };
 
   const verifyCode = async () => {
-    setLoading(true);
     setError('');
+    setPassed(null);
 
     try {
-      const response = await fetch('/api/verify-code', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ code, testCases }),
-      });
-      const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || 'Failed to verify code');
-      }
-      setPassed(data.passed);
-    } catch (error) {
-      if (error instanceof Error) {
-        setError(error.message);
+      let testCode = code + '\n\n';
+      testCode += `
+failed_tests = []
+
+try:
+    import sys
+    
+    test_cases = [
+        {'inputs': [[1, 3, 5, 7, 9], 5], 'expected': 2},
+        {'inputs': [[1, 3, 5, 7, 9], 2], 'expected': -1},
+        {'inputs': [[], 1], 'expected': -1},
+        {'inputs': [[1], 1], 'expected': 0},
+        {'inputs': [[1, 1, 1, 1], 1], 'expected': 0},
+    ]
+    
+    for i, test in enumerate(test_cases):
+        result = linear_search(test['inputs'][0], test['inputs'][1])
+        if result != test['expected']:
+            failed_tests.append(i + 1)
+            print(f"Test case {i + 1} failed:")
+            print(f"  Input: arr={test['inputs'][0]}, target={test['inputs'][1]}")
+            print(f"  Expected: {test['expected']}")
+            print(f"  Got: {result}")
+    
+    if failed_tests:
+        print(f"Failed test cases: {failed_tests}")
+        sys.exit(1)
+    else:
+        print("All test cases passed!")
+
+except Exception as e:
+    print(f"Error: {str(e)}")
+    sys.exit(1)
+`;
+
+      await runPython(testCode);
+
+      // Check stdout and stderr directly from the hook
+      const hasFailures =
+        stdout.includes('Failed test cases') ||
+        stdout.includes('Error:') ||
+        stderr;
+
+      if (hasFailures) {
+        setError(stdout || stderr);
+        setPassed(false);
+      } else if (stdout.includes('All test cases passed!')) {
+        setPassed(true);
       } else {
-        setError('An error occurred while verifying code');
+        setError('Unexpected output from the code.');
+        setPassed(false);
       }
-    } finally {
-      setLoading(false);
+    } catch (error) {
+      setError(
+        error instanceof Error
+          ? error.message
+          : 'An error occurred while running the code',
+      );
+      setPassed(false);
     }
   };
-
   return (
     <div className="flex h-screen mx-4 gap-4 py-4">
       <article className="text-neutral-100 min-w-[400px] max-w-[800px] rounded-lg p-4 bg-midnight-purple/80 border-neutral-100 border shadow-lg shadow-mystic-teal relative flex flex-col gap-4">
@@ -117,7 +134,11 @@ export default function Page() {
           inspect every location until the treasure is found—or until every
           possibility is exhausted.
         </p>
-        <Button className="max-w-32" disabled={loading} onClick={verifyCode}>
+        <Button
+          className="max-w-32"
+          disabled={isPythonLoading}
+          onClick={verifyCode}
+        >
           <FaPlay /> Run
         </Button>
         {error && (
@@ -129,11 +150,11 @@ export default function Page() {
         )}
         {passed != null && (
           <div
-            className={`flex items-center text-neutral-100 ${passed ? 'bg-green-500' : 'bg-red-500'}`}
+            className={`flex items-center text-neutral-100 rounded p-2 shadow-lg ${passed ? 'bg-green-500' : 'bg-red-500'}`}
           >
             {passed ? (
               <>
-                <FaFire className="w-6 h-6" />
+                <FaFire className="w-6 h-6 text-orange-600" />
                 <span className="ml-2">All test cases passed!</span>
               </>
             ) : (
@@ -150,8 +171,8 @@ export default function Page() {
         <div className="bottom-8 left-8 fixed z-50">
           <Mascot
             hints={[
-              'In linear search, you don’t jump ahead—you begin at index 0 and check each element one by one. No shortcuts, no fancy tricks—just pure perseverance.',
-              'Linear search doesn’t skip elements. Whether the target is at the start, middle, or end, every element gets checked in order. This means the worst case takes O(n) time—slow for large lists but useful when the data is unsorted or when the list is small.',
+              "In linear search, you don't jump ahead—you begin at index 0 and check each element one by one. No shortcuts, no fancy tricks—just pure perseverance.",
+              "Linear search doesn't skip elements. Whether the target is at the start, middle, or end, every element gets checked in order. This means the worst case takes O(n) time—slow for large lists but useful when the data is unsorted or when the list is small.",
               'As soon as the target is found, stop searching! Return the index immediately to avoid unnecessary work. If the loop ends without finding the target, return -1 to signal failure.',
             ]}
           />
