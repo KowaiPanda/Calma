@@ -19,6 +19,7 @@ export default {
       },
       backgroundImage: {
         background: 'url("/images/skybox.jpg")',
+        startbackground: 'url("/images/startscreen.jpg")',
       },
     },
   },
