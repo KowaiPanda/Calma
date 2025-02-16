@@ -1,5 +1,5 @@
+import { redirect } from 'next/navigation';
+
 export default function Page() {
-  return ( <>
-    <div className="text-blue-500 text-xl">Hello, world!</div>
-  </>)
+  redirect('/level_menu');
 }
